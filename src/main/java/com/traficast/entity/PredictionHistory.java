@@ -3,6 +3,8 @@ package com.traficast.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "prediction_history",
         indexes = {

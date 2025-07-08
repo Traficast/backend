@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.List;
 
+// 포괄적인 요청 DTO
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

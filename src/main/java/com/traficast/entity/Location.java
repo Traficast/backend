@@ -22,8 +22,8 @@ public class Location extends BaseEntity{
     @Column(name = "latitude", nullable = false, precision = 10, scale = 7)
     private Double latitude; // 위도
 
-    @Column(name = "longtitude", nullable = false, precision = 10, scale = 7)
-    private Double longtitude; // 경도
+    @Column(name = "longitude", nullable = false, precision = 10, scale = 7)
+    private Double longitude; // 경도
 
     @Column(name = "road_type", length = 50)
     private String roadType; // 도로 유형(고속도로, 일반도로, 시내도로)

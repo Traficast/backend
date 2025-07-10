@@ -27,7 +27,7 @@ public class TrafficData extends BaseEntity {
     private Location location;
 
     @Column(name = "recorded_at", nullable = false)
-    private LocalDateTime recordedAt; // 기록 시간
+    private LocalDateTime measuredAt; // 기록 시간
 
     @Column(name = "vehicle_count", nullable = false)
     private Integer vehicleCount; // 차량 수

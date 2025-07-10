@@ -45,10 +45,6 @@ public class PredictionHistory extends BaseEntity{
     @Column(name = "confidence_score", precision = 5, scale = 4)
     private Double confidenceScore; // 예측 신뢰도(0.0 ~ 1.0)
 
-    // 모델 정보
-    @Column(name = "model_version", length = 50)
-    private String modelVersion; // 사용된 모델 버전
-
     @Column(name = "prediction_type")
     @Enumerated(EnumType.STRING)
     private PredictionType predictionType; // 예측 타입

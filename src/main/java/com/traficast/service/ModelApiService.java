@@ -7,7 +7,7 @@ import com.traficast.entity.ModelConfig;
 import com.traficast.exception.PredictionException;
 import com.traficast.repository.ModelConfigRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
+import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -41,7 +41,7 @@ public class ModelApiService {
      * @return 모델 API로부터 받은 예측 결과
      * @throws RuntimeException 모델 API 통신 중 오류 발생 시
      */
-    public PredictionResponse requestPredictionFromModel(Map<String, Object> request){
+    public PredictionResponse requestPredictionFromModel(PredictionRequest request){
         LocalDateTime startTime = LocalDateTime.now();
 
         // 1. 활성화된 모델 설정 조회
@@ -82,7 +82,6 @@ public class ModelApiService {
 
             // 5. 응답 검증
             validateModelResponse(responseBody);
-
             return responseBody;
         }catch (HttpClientErrorException e){
             log.error("모델 API 클라이언트 오류: Status={}, Body={}",

@@ -109,4 +109,13 @@ public interface PredictionHistoryRepository extends JpaRepository<PredictionHis
      */
     Page<PredictionHistory> findByLocationOrderByPredictionTimeDesc(Location location, Pageable pageable);
 
+    /**
+     * 특정 기간 내 예측 결과 중 아직 실제값이 검증되지 않은 예측들을 조회
+     * @param startTime 시작 시간
+     * @param endTime 종료 시간
+     * @return 미검증 예측 목록
+     */
+    List<PredictionHistory> findByPredctionTimeBetweenAndActualVehicleCountIsNull(
+            LocalDateTime startTime, LocalDateTime endTime
+    );
 }

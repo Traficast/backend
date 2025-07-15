@@ -133,7 +133,6 @@ public class PredictionResponse {
                 .predictedSpeed(predictionHistory.getPredictedSpeed())
                 .predictedCongestionLevel(predictionHistory.getPredictedCongestionLevel())
                 .confidenceScore(predictionHistory.getConfidenceScore())
-                .modelVersion(predictionHistory.getModelVersion())
                 .predictionType(predictionHistory.getPredictionType())
                 .build();
     }

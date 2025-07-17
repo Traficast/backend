@@ -36,8 +36,8 @@ spring:
 
 # 외부 API 설정
 model-api:
-  url: http://localhost:8000
-  timeout: 30000
+  url: http://localhost:5000/predict
+  timeout: 30
 
 # 스케줄링 설정
 scheduling:

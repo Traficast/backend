@@ -32,7 +32,7 @@ public class ModelApiService {
     @Value("${model.api.default-url:http://localhost:8000/predict}")
     private String defaultModelApiUrl;
 
-    @Value("${model-api.timout:30}")
+    @Value("${model.api.timout:30}")
     private int apiTimeoutSeconds;
 
     /**
@@ -41,7 +41,7 @@ public class ModelApiService {
      * @return 모델 API로부터 받은 예측 결과
      * @throws RuntimeException 모델 API 통신 중 오류 발생 시
      */
-    public PredictionResponse requestPredictionFromModel(PredictionRequest request){
+    public Map<String, Object> requestPredictionFromModel(PredictionRequest request){
         LocalDateTime startTime = LocalDateTime.now();
 
         // 1. 활성화된 모델 설정 조회
@@ -82,6 +82,11 @@ public class ModelApiService {
 
             // 5. 응답 검증
             validateModelResponse(responseBody);
+
+            // 모델 정보를 응답에 추가(TrafficPredictionService에서 활용)
+            responseBody.put("modelVersion", activeModel.getModelVersion());
+            responseBody.put("modelName", activeModel.getModelName());
+
             return responseBody;
         }catch (HttpClientErrorException e){
             log.error("모델 API 클라이언트 오류: Status={}, Body={}",

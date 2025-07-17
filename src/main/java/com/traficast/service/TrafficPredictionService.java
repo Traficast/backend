@@ -1,12 +1,14 @@
 package com.traficast.service;
 
 
+import com.traficast.dto.DtoMapper;
 import com.traficast.dto.request.PredictionRequest;
 import com.traficast.dto.response.PredictionResponse;
 import com.traficast.entity.Location;
 import com.traficast.entity.PredictionHistory;
 import com.traficast.entity.TrafficData;
 import com.traficast.repository.LocationRepository;
+import com.traficast.repository.ModelConfigRepository;
 import com.traficast.repository.PredictionHistoryRepository;
 import com.traficast.repository.TrafficDataRepository;
 import com.traficast.exception.PredictionException;
@@ -30,6 +32,8 @@ public class TrafficPredictionService {
     private final TrafficDataRepository trafficDataRepository;
     private final PredictionHistoryRepository predictionHistoryRepository;
     private final ModelApiService modelApiService;
+    private final ModelConfigRepository modelConfigRepository;
+    private final DtoMapper dtoMapper;
 
     /**
      * 교통량 예측을 수행하고 결과를 저장합니다.
@@ -55,7 +59,14 @@ public class TrafficPredictionService {
         // 4. 예측 결과 파싱 및 저장
         List<PredictionResponse> predictionResponses = processPredictionResults(
                 rawPredictionResult, targetLocations, request);
-        )
+
+        LocalDateTime endTime = LocalDateTime.now();
+        long executionTimeMs = java.time.Duration.between(startTime, endTime).toMillis();
+
+        log.info("교통량 예측 요청 처리 완료: 실행시간: {}ms, 예측 결과={}개",
+                executionTimeMs, predictionResponses.size());
+
+        return predictionResponses;
     }
 
     /**
@@ -135,10 +146,10 @@ public class TrafficPredictionService {
     private PredictionResponse processSinglePrediction(
             Map<String, Object> predictionData, List<Location> locations,
             PredictionRequest request, String modelVersion
-    ){
-        Long locationId = ((Number)predictionData.get("locationId")).longValue();
+    ) {
+        Long locationId = ((Number) predictionData.get("locationId")).longValue();
         Integer predictedVehicleCount = (Integer) predictionData.get("predictedVehicleCount");
-        Double predictedSpeed = ((Number)predictionData.get("predictedSpeed")).doubleValue();
+        Double predictedSpeed = ((Number) predictionData.get("predictedSpeed")).doubleValue();
         String congestionLevelStr = (String) predictionData.get("predictedCongestionLevel");
         Double confidenceScore = ((Number) predictionData.get("confidenceScore")).doubleValue();
 
@@ -164,7 +175,7 @@ public class TrafficPredictionService {
         log.debug("예측 결과 저장 완료: ID={}, Location={}, Confidence={}",
                 savedPrediction.getId(), location.getLocationName(), confidenceScore);
 
-        return new PredictionResponse(savedPrediction);
+        return dtoMapper.toPredictionResponse(savedPrediction);
     }
 
     /**
@@ -175,7 +186,7 @@ public class TrafficPredictionService {
                 .orElseThrow(()-> new NoSuchElementException("위치 ID" + locationId + "를 찾을 수 없습니다."));
 
         return predictionHistoryRepository.findTopByLocationOrderByPredictionTimeDesc(location)
-                .map(PredictionResponse);
+                .map(dtoMapper::toPredictionResponse);
     }
 
     /**

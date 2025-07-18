@@ -31,6 +31,12 @@ public class LocationRequest {
     @Schema(description = "위도", example = "37.4979", required = true)
     private Double latitude;
 
+    @NotNull(message = "경도가 필수입니다")
+    @DecimalMin(value = "-180.0", message = "위도가 -180도 이상이어야 합니다")
+    @DecimalMax(value = "180.0", message = "위도가 180도 이상이어야 합니다")
+    @Schema(description = "경도", example = "127.0726", required = true)
+    private Double longitude;
+
     @Pattern(regexp = "^(고속도로|일반도로|시내도로|국도|지방도)$",
             message = "도로 유형은 고속도로, 일반도로, 시내도로, 국도, 지방도 중 하나여야 합니다")
     @Schema(description = "도로 유형", example = "시내도로")

@@ -63,4 +63,6 @@ public interface LocationRepository extends JpaRepository<Location, Long> {
      */
     List<Location> findByLaneCountGreaterThanEqualOrderByLaneCountDesc(Integer minLaneCount);
 
+    // 추가 메서드
+    List<Location> findByLocationNameContainingIgnoreCaseAndRoadType(String locationName, String roadType);
 }

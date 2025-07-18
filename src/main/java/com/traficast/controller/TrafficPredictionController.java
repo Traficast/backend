@@ -7,6 +7,7 @@ import com.traficast.dto.response.PredictionResponse;
 import com.traficast.service.TrafficPredictionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,64 +18,89 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
-@RequestMapping("/v1/predictions")
+@RequestMapping("/api/v1/predictions")
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "교통 예측", description = "교통량 예측 관련 API")
+@Tag(name = "교통량 예측 API", description = "교통량 예측 요청 및 결과 조회 관련 API")
 public class TrafficPredictionController {
 
-    private final TrafficPredictionService predictionService;
+    private final TrafficPredictionService trafficPredictionService;
 
+    /**
+     * 교통량 예측 요청
+     */
     @PostMapping
-    @Operation(summary = "교통량 예측", description = "특정 위치와 시간에 대한 교통량을 예측합니다.")
-    public ResponseEntity<ApiResponse<PredictionResponse>> predictTraffic(
-            @Valid @RequestBody PredictionRequest request){
-        log.info("교통량 예측 요청 - 위치: {}, 날짜: {}", request.getLocationId(), request.getPredictionDate());
+    @Operation(summary = "교통량 예측 요청", description = "지정된 위치와 시간에 대한 교통량 예측을 수행합니다.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200",
+                    description = "예측 성공"
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "400",
+                    description = "잘못된 요청 데이터"
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "500",
+                    description = "서버 내부 오류"
+            )
+    })
+    public ResponseEntity<ApiResponse<List<PredictionResponse>>> predictTraffic(
+            @Valid @RequestBody PredictionRequest request) {
+        log.info("교통량 예측 요청 - 위치: {}, 날짜: {}",
+                request.getLocationIds().size(), request.getTargetDatetime());
 
-        PredictionResponse response = predictionService.predictTraffic(request);
+        List<PredictionResponse> predictions = trafficPredictionService.predictTraffic(request);
 
-        return ResponseEntity.ok(ApiResponse.success("예측 이력을 성공적으로 조회했습니다", response));
+        return ResponseEntity.ok(ApiResponse.success("교통량 예측이 성공적으로 완료되었습니다.", predictions));
     }
 
-    @GetMapping("/history")
-    @Operation(summary = "예측 이력 조회", description = "특정 위치의 예측 이력을 조회합니다")
-    public ResponseEntity<ApiResponse<PredictionResponse>> getPredictionHistory(
-            @Parameter(description = "위치 ID") @RequestParam Long locationId,
-            @Parameter(description = "시작 날짜")
-            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime startDate,
-            @Parameter(description = "종료 날짜")
-            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endDate) {
+    /**
+     * 특정 위치의 최신 예측 결과 조회
+     */
+    @GetMapping("/locations/{locationId}/latest")
+    @Operation(summary = "최신 예측 결과 조회", description = "특정 위치의 가장 최근 예측 결과를 조회합니다.")
+    public ResponseEntity<ApiResponse<PredictionResponse>> getLatestPrediction(
+            @Parameter(description = "위치 ID", required = true, example = "1")
+            @PathVariable Long locationId){
 
-        log.info("예측 이력 조회 요청 - 위치: {}, 기간 {} ~ {}", locationId, startDate, endDate);
+        log.info("최신 예측 결과 조회 요청: 위치 ID {}", locationId);
 
-        List<PredictionResponse> history = predictionService.getPredictionHistory(locationId, startDate, endDate);
+        Optional<PredictionResponse> prediction = trafficPredictionService
+                .getLatestPredictionForLocation(locationId);
 
-        return ResponseEntity.ok(ApiResponse.success("예측 이력을 성공적으로 조회했습니다.", history));
+        if(prediction.isPresent()){
+            return ResponseEntity.ok(ApiResponse.success(
+                    "최신 예측 결과를 성공적으로 조회했습니다.",
+                    prediction.get()
+            ));
+        }else {
+            return ResponseEntity.ok(ApiResponse.success(
+                    "해당 위치의 예측 결과가 없습니다",
+                    null
+            ));
+        }
     }
 
-    @GetMapping("/{predictionId}")
-    @Operation(summary = "예측 결과 단건 조회", description = "특정 예측 결과를 조회합니다")
-    public ResponseEntity<ApiResponse<PredictionResponse>> getPrediction(
-            @Parameter(description = "예측 ID") @PathVariable Long predictionId){
-        log.info("예측 결과 조회 요청 - ID: {}", predictionId);
+    /**
+     * 예측 정확도 검증 트리거
+     */
+    @PostMapping("/validation/trigger")
+    @Operation(summary = "예측 정확도 검증 실행", description = "예측 정확도 검증 작업을 수동으로 실행합니다.")
+    public ResponseEntity<ApiResponse<String>> triggerAccuracyValidation(){
 
-        // 서비스 메서드 추가 필요
-        // PredictionResponse response = predictionService.getPredictionById(predictionId);
+        log.info("예측 정확도 검증 수동 실행 요청");
 
-        return ResponseEntity.ok(ApiResponse.success("예측 결과가 성공적으로 조회했습니다.", null));
-    }
+        trafficPredictionService.validatePredictionAccuracy();
 
-    @DeleteMapping("/{predictionId}")
-    @Operation(summary = "예측 결과 삭제", description = "특정 예측 결과를 삭제합니다")
-    public ResponseEntity<ApiResponse<Void>> deletePrediction(
-            @Parameter(description = "예측 ID") @PathVariable Long predictionId){
-        log.info("예측 결과 삭제 요청 - ID: {}", predictionId);
-
-        // 서비스 메서드 추가 필요
-        // predictionService.deletePrediction(predictionId);
-
-        return ResponseEntity.ok(ApiResponse.success("예측 결과가 성공적으로 삭제되었습니다", null));
+        return ResponseEntity.ok(ApiResponse.success(
+                "예측 정확도 검증이 성공적으로 실행되었습니다.",
+                "검증 작업이 백그라운드에서 실행됩니다."
+        ));
     }
 }
+
+

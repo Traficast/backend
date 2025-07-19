@@ -98,6 +98,28 @@ public class GlobalExceptionHandler {
 
         Map<String, Object> errorDetails = new HashMap<>();
         errorDetails.put("failedCount", ex.getFailedCount());
+        errorDetails.put("totalCount", ex.getTotalCount());
+        errorDetails.put("errors", ex.getErrors());
+
+        ApiResponse<Map<String, Object>> response = ApiResponse.<Map<String, Object>>builder()
+                .success(false)
+                .message(ex.getMessage())
+                .errorCode("DATA_UPLOAD_ERROR")
+                .errorDetails(errorDetails)
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    /**
+     * 예측 관련 예외 처리
+     */
+    @ExceptionHandler(PredictionException.class)
+    public ResponseEntity<ApiResponse<Map<String, Object>>> handlePredictionException(
+            PredictionException ex, WebRequest request
+    ){
+        log.error("예측 예외: {} | 요청: {}", ex.getMessage(), request.getDescription(false));
     }
 
     /**

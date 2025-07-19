@@ -35,6 +35,23 @@ public class PredictionException extends RuntimeException{
         this.errorCode = "PREDICTION_FAILED";
     }
 
+    // 수동 getter 메서드 추가 (Lombok 문제 해결)
+    public List<Long> getLocationIds() {
+        return locationIds;
+    }
+
+    public PredictionHistory.PredictionType getPredictionType() {
+        return predictionType;
+    }
+
+    public String getModelVersion() {
+        return modelVersion;
+    }
+
+    public String getErrorCode() {
+        return errorCode;
+    }
+
     /**
      * 모델 API 통신 실패
      */

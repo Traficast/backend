@@ -120,6 +120,20 @@ public class GlobalExceptionHandler {
             PredictionException ex, WebRequest request
     ){
         log.error("예측 예외: {} | 요청: {}", ex.getMessage(), request.getDescription(false));
+
+        Map<String, Object> errorDetails = new HashMap<>();
+        errorDetails.put("predctionType", ex.getPredictionType());
+        errorDetails.put("locationIds", ex.getLocationIds());
+        errorDetails.put("modelVersion", ex.getModelVersion());
+
+        ApiResponse<Map<String,Object>> response = ApiResponse.<Map<String, Object>>builder()
+                .success(false)
+                .message(ex.getMessage())
+                .errorCode("PREDICTION_ERROR")
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
     /**
@@ -127,14 +141,17 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiResponse<Void>> handleRuntimeException(
-            RuntimeException ex){
-        log.error("런타임 예외 발생: {}", ex.getMessage(), ex);
+            RuntimeException ex, WebRequest request){
+        log.error("런타임 예외 발생: {} | 요청: {}", ex.getMessage(), request.getDescription(false), ex);
 
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error(
-                        "서버 내부 오류가 발생했습니다.",
-                        "INTERNAL_SERVER_ERROR"
-                ));
+        ApiResponse<Void> response = ApiResponse.<Void>builder()
+                .success(false)
+                .message("서버 내부 오류가 발생했습니다.")
+                .errorCode("INTERNAL_SERVER_ERROR")
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 
     /**
@@ -142,13 +159,16 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGenericException(
-            Exception ex){
-        log.error("예상치 못한 예외 발생: {}", ex.getMessage(), ex);
+            Exception ex, WebRequest request){
+        log.error("예상치 못한 예외 발생: {} | 요청: {}", ex.getMessage(),request.getDescription(false) ,ex);
 
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error(
-                        "예상치 못한 오류가 발생했습니다",
-                        "UNKNOWN_ERROR"
-                ));
+        ApiResponse<Void> response = ApiResponse.<Void>builder()
+                .success(false)
+                .message("예상치 못한 오류가 발생했습니다.")
+                .errorCode("UNKNOWN_ERROR")
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 }

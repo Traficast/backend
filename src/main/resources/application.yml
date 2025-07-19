@@ -1,69 +1,100 @@
+# 서버 설정
 server:
-  port:8080
+  port: 8080
   servlet:
-    context-path: /api
+    context-path: /
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
 
+# Spring 설정
 spring:
   application:
-    name: traficast-backend
+    name: traffic-prediction-system
 
+  # 프로파일 설정
   profiles:
     active: dev
 
+  # 데이터베이스 설정
   datasource:
-    url: jdbc:postgresql://localhost:5432/traficast
-    username: traficast
-    password: password
+    url: jdbc:postgresql://localhost:5432/traffic_prediction
+    username: ${DB_USERNAME:traffic_user}
+    password: ${DB_PASSWORD:traffic_password}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
 
+  # JPA 설정
   jpa:
     hibernate:
-      ddl-auto: validate
-    show-sql: false
+      ddl-auto: update
+    show-sql: true
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          time_zone: Asia/Seoul
+    open-in-view: false
 
-  flyway:
-    enabled: true
-    locations: classpath:db/migration
-    baseline-on-migrate: true
-
+  # Jackson 설정
   jackson:
     time-zone: Asia/Seoul
     date-format: yyyy-MM-dd HH:mm:ss
 
-# 외부 API 설정
-model-api:
-  url: http://localhost:5000/predict
-  timeout: 30
+# 로깅 설정
+logging:
+  level:
+    com.traficast: DEBUG
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/traffic-prediction.log
 
-# 스케줄링 설정
-scheduling:
+# 외부 ML 모델 API 설정
+model:
+  api:
+    default-url: http://localhost:8000/predict
+    timeout: 30
+    retry-count: 3
+
+# 스케줄러 설정
+scheduler:
   enabled: true
-  prediction:
-    cron: "0 0 0 * * ?" # 매일 자정
+  daily-prediction-cron: "0 0 0 * * *"
+  hourly-prediction-cron: "0 0 * * * *"
+  accuracy-validation-cron: "0 0 3 * * *"
 
-# 파일 업로드 설정
-file:
-  upload:
-    max-size: 10MB
-    allowed-types: text/csv, application/csv
+# Swagger 설정
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
 
+# 관리자 설정
 management:
   endpoints:
     web:
       exposure:
-        include: health, info, metrics
-
-  endpoints:
+        include: health,info,metrics
+  endpoint:
     health:
       show-details: always
 
-logging:
-  level:
-    com.traficast: INFO
-    org.springframework.web: DEBUG
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+# 애플리케이션 정보
+info:
+  app:
+    name: Traffic Prediction System
+    version: 1.0.0
+    description: T-GCN based traffic prediction system

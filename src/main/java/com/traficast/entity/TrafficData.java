@@ -27,12 +27,12 @@ public class TrafficData extends BaseEntity {
     private Location location;
 
     @Column(name = "recorded_at", nullable = false)
-    private LocalDateTime measuredAt; // 기록 시간
+    private LocalDateTime recordedAt; // 기록 시간
 
     @Column(name = "vehicle_count", nullable = false)
     private Integer vehicleCount; // 차량 수
 
-    @Column(name = "average_speed", precision = 5, scale = 2)
+    @Column(name = "average_speed", precision = 5)
     private Double averageSpeed; // 평균 속도(km/h)
 
     @Column(name = "congestion_level")
@@ -43,13 +43,13 @@ public class TrafficData extends BaseEntity {
     @Column(name = "weather_condition", length = 50)
     private String weatherCondition; // 날씨 상태
 
-    @Column(name = "temperature", precision = 4, scale = 1)
+    @Column(name = "temperature", precision = 4)
     private Double temperature; // 온도
 
-    @Column(name = "humidity", precision = 5, scale = 2)
+    @Column(name = "humidity", precision = 5)
     private Double humidity; // 습도
 
-    @Column(name = "visibility", precision = 5, scale = 2)
+    @Column(name = "visibility", precision = 5)
     private Double visibility; // 가시거리(km)
 
     // 시간적 특성

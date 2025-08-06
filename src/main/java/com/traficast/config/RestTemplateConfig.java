@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
@@ -27,17 +28,7 @@ public class RestTemplateConfig {
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder){
         log.info("RestTemplate 설정 초기화");
-
-        // Apache HttpComponents 사용하여 연결 풀링 최적화
-        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
-        factory.setConnectTimeout(10000); // 연결 타임아웃 10초
-        factory.setReadTimeout(60000); // 읽기 타임아웃 60초
-
-        return builder
-                .setConnectTimeout(Duration.ofSeconds(10))
-                .setReadTimeout(Duration.ofSeconds(60))
-                .requestFactory(() -> factory)
-                .build();
+        return new RestTemplate(clientHttpRequestFactory());
     }
 
     /**
@@ -45,9 +36,28 @@ public class RestTemplateConfig {
      */
     @Bean("fastRestTemplate")
     public RestTemplate fastRestTemplate(RestTemplateBuilder builder){
-        return builder
-                .setConnectTimeout(Duration.ofSeconds(3))
-                .setReadTimeout(Duration.ofSeconds(10))
-                .build();
+        return new RestTemplate(fastClientHttpRequestFactory());
+    }
+
+    /**
+     * 일반 요청용 Http 클라이언트 팩토리
+     */
+    @Bean
+    public ClientHttpRequestFactory clientHttpRequestFactory(){
+        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
+        factory.setConnectTimeout(Duration.ofSeconds(10));
+        factory.setReadTimeout(Duration.ofSeconds(60));
+        return factory;
+    }
+
+    /**
+     * 빠른 응답용 HTTP 클라이언트 팩토리
+     */
+    @Bean
+    public ClientHttpRequestFactory fastClientHttpRequestFactory(){
+        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
+        factory.setConnectTimeout(Duration.ofSeconds(3));
+        factory.setReadTimeout(Duration.ofSeconds(10));
+        return factory;
     }
 }

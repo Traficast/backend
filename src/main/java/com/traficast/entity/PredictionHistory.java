@@ -35,14 +35,14 @@ public class PredictionHistory extends BaseEntity{
     @Column(name = "predicted_vehicle_count", nullable = false)
     private Integer predictedVehicleCount; // 예측된 차량 수
 
-    @Column(name = "predicted_speed", nullable = false)
+    @Column(name = "predicted_speed", nullable = false, precision = 5)
     private Double predictedSpeed; // 예측된 평균 속도
 
     @Column(name = "predicted_congestion_level")
     @Enumerated(EnumType.STRING)
     private TrafficData.CongestionLevel predictedCongestionLevel; // 예측된 혼잡도
 
-    @Column(name = "confidence_score", precision = 5, scale = 4)
+    @Column(name = "confidence_score", precision = 5)
     private Double confidenceScore; // 예측 신뢰도(0.0 ~ 1.0)
 
     @Column(name = "prediction_type")
@@ -53,14 +53,14 @@ public class PredictionHistory extends BaseEntity{
     @Column(name = "actual_vehicle_count")
     private Integer actualVehicleCount; // 실제 값 (검증용)
 
-    @Column(name = "actual_speed", precision = 5, scale = 2)
+    @Column(name = "actual_speed", precision = 5)
     private Double actualSpeed;
 
     @Column(name = "actual_congestion_level")
     @Enumerated(EnumType.STRING)
     private TrafficData.CongestionLevel actualCongestionLevel;
 
-    @Column(name = "accuracy_score")
+    @Column(name = "accuracy_score", precision = 5)
     private Double accuracyScore; // 예측 정확도(실제값과 비교)
 
     public enum PredictionType{

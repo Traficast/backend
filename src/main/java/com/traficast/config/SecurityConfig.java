@@ -37,10 +37,10 @@ public class SecurityConfig {
                 // CSRF 비활성화 (REST API용)
                 .csrf(AbstractHttpConfigurer::disable)
 
-                // CORS 설정 적용
-                .cors(cors -> cors.configurationSource())
+                // CORS 설정 적용(corsConfigurationSource() Bean을 인자로 전달)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-                // 세션 정책 설정(Stateless)
+                // 세션 정책 설정(Stateless) (메서드명 확인)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 

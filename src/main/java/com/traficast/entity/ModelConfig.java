@@ -29,6 +29,7 @@ public class ModelConfig extends BaseEntity{
     @Column(name= "api_endpoint", length = 200)
     private String apiEndpoint;
 
+    @Builder.Default
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = false;
 

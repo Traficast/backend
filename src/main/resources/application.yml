@@ -17,12 +17,12 @@ spring:
   profiles:
     active: dev
 
-  # 데이터베이스 설정
+  # H2 인메모리 데이터베이스 설정 (PostgreSQL 대체)
   datasource:
-    url: jdbc:postgresql://localhost:5432/traffic_prediction
-    username: ${DB_USERNAME:traffic_user}
-    password: ${DB_PASSWORD:traffic_password}
-    driver-class-name: org.postgresql.Driver
+    url: jdbc:h2:mem:trafficdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
     hikari:
       maximum-pool-size: 20
       minimum-idle: 5
@@ -30,15 +30,24 @@ spring:
       idle-timeout: 600000
       max-lifetime: 1800000
 
-  # JPA 설정
+  # H2 콘솔 활성화 (데이터 확인용)
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: true
+
+
+  # JPA 설정 (H2용 최적화)
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop # 개발용: 시작 시 테이블 자동 생성, 종료 시 삭제
     show-sql: true
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+        # dialect 제거 - H2는 자동 감지
         jdbc:
           time_zone: Asia/Seoul
     open-in-view: false
@@ -54,6 +63,7 @@ logging:
     com.traficast: DEBUG
     org.springframework.web: INFO
     org.hibernate.SQL: DEBUG
+    org.springframework.security: INFO
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
   file:
@@ -98,3 +108,22 @@ info:
     name: Traffic Prediction System
     version: 1.0.0
     description: T-GCN based traffic prediction system
+
+# 운영 환경용 PostgreSQL 설정 (주석 처리)
+# 나중에 PostgreSQL 사용 시 아래 설정을 활성화하고 위의 H2 설정을 주석 처리
+
+# spring:
+#   config:
+#     activate:
+#       on-profile: prod
+#   datasource:
+#     url: jdbc:postgresql://localhost:5432/traffic_prediction
+#     username: ${DB_USERNAME:traffic_user}
+#     password: ${DB_PASSWORD:traffic_password}
+#     driver-class-name: org.postgresql.Driver
+#   jpa:
+#     hibernate:
+#       ddl-auto: update
+#     properties:
+#       hibernate:
+#         dialect: org.hibernate.dialect.PostgreSQLDialect

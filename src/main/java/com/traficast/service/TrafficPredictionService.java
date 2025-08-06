@@ -11,7 +11,6 @@ import com.traficast.repository.LocationRepository;
 import com.traficast.repository.ModelConfigRepository;
 import com.traficast.repository.PredictionHistoryRepository;
 import com.traficast.repository.TrafficDataRepository;
-import com.traficast.exception.PredictionException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -201,7 +200,7 @@ public class TrafficPredictionService {
 
         // 1일 전 예측 결과 중 아직 검증되지 않은 것들 조회
         List<PredictionHistory> unvalidatedPredictions = predictionHistoryRepository
-                .findByPredctionTimeBetweenAndActualVehicleCountIsNull(oneDay, now);
+                .findByPredictionTimeBetweenAndActualVehicleCountIsNull(oneDay, now);
 
         int validatedCount = 0;
 
@@ -209,7 +208,7 @@ public class TrafficPredictionService {
             try{
                 // 실제 교통 데이터 조회
                 Optional<TrafficData> actualData = trafficDataRepository
-                        .findByLocationAndMeasuredAtBetweenOrderByMeasuredAtDesc(
+                        .findByLocationAndRecordedAtBetweenOrderByRecordedAtDesc(
                                 prediction.getLocation(),
                                 prediction.getTargetDateTime().minusMinutes(30),
                                 prediction.getTargetDateTime().plusMinutes(30))

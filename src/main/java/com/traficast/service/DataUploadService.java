@@ -70,7 +70,7 @@ public class DataUploadService {
                 // 4. DTO -> Entity 변환
                 TrafficData trafficData = TrafficData.builder()
                         .location(location)
-                        .measuredAt(entry.getMeasuredAt())
+                        .recordedAt(entry.getMeasuredAt())
                         .vehicleCount(entry.getVehicleCount())
                         .averageSpeed(entry.getAverageSpeed())
                         .congestionLevel(entry.getCongestionLevel())

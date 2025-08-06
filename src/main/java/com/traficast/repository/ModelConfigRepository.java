@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface ModelConfigRepository extends JpaRepository<ModelConfig, Long> {
 
     /**
-     * 현재 활성화된 모델 조회
+     * 현재 활성화된 모델 조회(최신 생성된 것부터)
      */
     Optional<ModelConfig> findTopByIsActiveTrueAndIsDeletedFalseOrderByActivationDateDesc();
 
@@ -23,5 +23,5 @@ public interface ModelConfigRepository extends JpaRepository<ModelConfig, Long> 
     /**
      * 활성화된 모든 모델 조회
      */
-    List<ModelConfig> findByIsActiveTrueAndIsDeletedFalseOrderByActivationDateDesc();
+    List<ModelConfig> findByIsActiveTrueAndIsDeletedFalseOrderByCreatedAtDesc();
 }

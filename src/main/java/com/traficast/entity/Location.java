@@ -19,10 +19,10 @@ public class Location extends BaseEntity{
     @Column(name = "location_name", nullable = false, length = 100)
     private String locationName; // 예: "강남역 사거리"
 
-    @Column(name = "latitude", nullable = false, precision = 10, scale = 7)
+    @Column(name = "latitude", nullable = false, precision = 10)
     private Double latitude; // 위도
 
-    @Column(name = "longitude", nullable = false, precision = 10, scale = 7)
+    @Column(name = "longitude", nullable = false, precision = 10)
     private Double longitude; // 경도
 
     @Column(name = "road_type", length = 50)

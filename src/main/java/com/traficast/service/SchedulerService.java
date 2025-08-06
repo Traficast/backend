@@ -31,7 +31,7 @@ public class SchedulerService {
 
         try{
             // 1. 활성화된 위치 조회
-            List<Location> activeLocations = locationRepository.findByIsDeleteFalseOrderByLocationName();
+            List<Location> activeLocations = locationRepository.findByIsDeletedFalseOrderByLocationName();
             if(activeLocations.isEmpty()){
                 log.warn("예측할 활성화된 위치가 없습니다. 일일 예측 작업을 건너뜁니다.");
                 return;
@@ -77,7 +77,7 @@ public class SchedulerService {
 
         try{
             // 1. 주요 위치만 선별하여 예측(성능 최적화)
-            List<Location> majorLocations = locationRepository.findByIsDeleteFalseOrderByLocationName()
+            List<Location> majorLocations = locationRepository.findByIsDeletedFalseOrderByLocationName()
                     .stream()
                     .limit(20) // 상위 20개 위치만 시간별 예측
                     .collect(Collectors.toList());

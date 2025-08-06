@@ -57,7 +57,7 @@ public class LocationService {
         }else if(roadType != null){
             locations = locationRepository.findByRoadTypeOrderByLocationName(roadType);
         }else{
-            locations = locationRepository.findByIsDeleteFalseOrderByLocationName();
+            locations = locationRepository.findByIsDeletedFalseOrderByLocationName();
         }
 
         return locations.stream()

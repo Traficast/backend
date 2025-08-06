@@ -1,6 +1,5 @@
 package com.traficast.repository;
 
-
 import com.traficast.entity.Location;
 import com.traficast.entity.PredictionHistory;
 import org.springframework.data.domain.Page;
@@ -40,18 +39,11 @@ public interface PredictionHistoryRepository extends JpaRepository<PredictionHis
      * 예측 타입별 기록 조회
      * @param location 조회할 위치
      * @param predictionType 예측 타입
-     * @return
+     * @return 예측 타입별 기록 목록
      */
     List<PredictionHistory> findByLocationAndPredictionTypeOrderByPredictionTimeDesc(
             Location location, PredictionHistory.PredictionType predictionType
     );
-
-    /**
-     * 특정 모델 버전의 예측 기록 조회
-     * @param modelVersion 모델 버전
-     * @return 해당 모델 버전의 예측 기록 목록
-     */
-    List<PredictionHistory> findByModelVersionOrderByPredictionTimeDesc(String modelVersion);
 
     /**
      * 예측 정확도 분석(실제값이 있는 경우만)
@@ -66,15 +58,26 @@ public interface PredictionHistoryRepository extends JpaRepository<PredictionHis
     List<PredictionHistory> findValidatedPredictions(@Param("location") Location location);
 
     /**
-     * 모델별 평균 정확도 조회
-     * @return 해당 모델의 예측 기록 목록
+     * 모델별 평균 정확도 조회 - modelVersion 필드가 없으므로 주석 처리
+     * 필요시 다른 방법으로 구현 필요 (JOIN 등)
      */
+    /*
     @Query("SELECT ph.modelVersion, AVG(ph.accuracyScore), COUNT(ph) " +
             "FROM PredictionHistory ph " +
-            "WHERE ph.accuracyScore IS NOT NULL" +
-            "GROUP BY ph.modelVersion" +
+            "WHERE ph.accuracyScore IS NOT NULL " +
+            "GROUP BY ph.modelVersion " +
             "ORDER BY AVG(ph.accuracyScore) DESC")
     List<Object[]> findModelAccuracyStatistics();
+    */
+
+    /**
+     * 전체 예측 정확도 통계 (모델별 구분 없이)
+     * @return [평균 정확도, 총 예측 수] 배열
+     */
+    @Query("SELECT AVG(ph.accuracyScore), COUNT(ph) " +
+            "FROM PredictionHistory ph " +
+            "WHERE ph.accuracyScore IS NOT NULL")
+    List<Object[]> findOverallAccuracyStatistics();
 
     /**
      * 미래 예측 결과 조회(아직 실제값이 없는 예측들)
@@ -84,7 +87,7 @@ public interface PredictionHistoryRepository extends JpaRepository<PredictionHis
      */
     @Query("SELECT ph FROM PredictionHistory ph " +
             "WHERE ph.location = :location " +
-            "AND ph.targetDatetime > :currentTime " +
+            "AND ph.targetDateTime > :currentTime " +
             "ORDER BY ph.targetDateTime")
     List<PredictionHistory> findFuturePredictions(
             @Param("location") Location location,
@@ -115,7 +118,7 @@ public interface PredictionHistoryRepository extends JpaRepository<PredictionHis
      * @param endTime 종료 시간
      * @return 미검증 예측 목록
      */
-    List<PredictionHistory> findByPredctionTimeBetweenAndActualVehicleCountIsNull(
+    List<PredictionHistory> findByPredictionTimeBetweenAndActualVehicleCountIsNull(
             LocalDateTime startTime, LocalDateTime endTime
     );
 }

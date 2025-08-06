@@ -2,6 +2,7 @@ package com.traficast.entity;
 
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
@@ -28,6 +29,7 @@ public abstract class BaseEntity {
     @LastModifiedDate
     @Column(name="updated_at")
     private LocalDateTime updatedAt;
+
 
     @Column(name="is_deleted", nullable = false)
     private Boolean isDeleted = false;

@@ -41,9 +41,9 @@ public interface LocationRepository extends JpaRepository<Location, Long> {
      * @param radius 반경(km)
      * @return 반경 내 Location 목록
      */
-    @Query("SELECT I FROM Location I WHERE" +
+    @Query("SELECT I FROM Location I WHERE " +
             "6371 * acos(cos(radians(:lat)) * cos(radians(I.latitude)) * " +
-            "cos(radians(I.longtitude) - radians(:lon)) + " +
+            "cos(radians(I.longitude) - radians(:lon)) + " +
             "sin(radians(:lat)) * sin(radians(I.latitude))) <= :radius")
     List<Location> findLocationsWithinRadius(@Param("lat") Double lat,
                                              @Param("lon") Double lon,
@@ -54,7 +54,7 @@ public interface LocationRepository extends JpaRepository<Location, Long> {
      * 삭제되지 않은 활성 위치만 조회
      * @return 활성 Location 목록
      */
-    List<Location> findByIsDeleteFalseOrderByLocationName();
+    List<Location> findByIsDeletedFalseOrderByLocationName();
 
     /**
      * 최소 차선 수 이상의 위치 조회
